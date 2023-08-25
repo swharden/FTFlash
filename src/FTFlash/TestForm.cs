@@ -2,11 +2,11 @@ using System.Configuration;
 
 namespace FTFlash;
 
-public partial class Form1 : Form
+public partial class TestForm : Form
 {
     FtdiSharp.Protocols.SPI? SpiComm = null;
 
-    public Form1()
+    public TestForm()
     {
         InitializeComponent();
         Disconnect();
