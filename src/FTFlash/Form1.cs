@@ -42,9 +42,6 @@ public partial class Form1 : Form
             {
                 lblConnection.Text = $"FT232H ({device.ID}) connecting...";
                 SpiComm = new(device, spiMode: 0, slowDownFactor: 500);
-                //SpiComm.ClockIdlesLow = true;
-                //SpiComm.TransmitOnRisingClock = false;
-                //SpiComm.SampleOnRisingClock = true;
                 lblConnection.Text = $"FT232H ({device.ID}) connected";
                 btnConnect.Text = "Disconnect";
                 return;
@@ -60,20 +57,20 @@ public partial class Form1 : Form
             return;
 
         SpiComm.CsLow();
+        foreach (byte b in new byte[] { 0x90, 0, 0, 0 })
+            SpiComm.Write(b);
+        byte[] ids1 = SpiComm.ReadWrite(new byte[] { 0, 0 });
         SpiComm.CsHigh();
+
+        lblID1.Text = $"Manufacturer ID: 0x{ids1[0]:X}";
+        lblID2.Text = $"Device ID: 0x{ids1[1]:X}";
 
         SpiComm.CsLow();
-        SpiComm.Write(0x90);
-        SpiComm.Write(0);
-        SpiComm.Write(0);
-        SpiComm.Write(0);
-
-        System.Threading.Thread.Sleep(1);
-
-        byte[] dummy = { 0, 0 };
-        byte[] bytes = SpiComm.ReadWrite(dummy);
+        foreach (byte b in new byte[] { 0x4B, 0, 0, 0, 0 })
+            SpiComm.Write(b);
+        byte[] ids2 = SpiComm.ReadBytes(8);
         SpiComm.CsHigh();
 
-        lblIDs.Text = string.Join(", ", bytes.Select(x => $"{x}")).ToString();
+        lblID3.Text = "Device ID: " + string.Join("", ids2.Select(x => $"{x:X2}")).ToString();
     }
 }
