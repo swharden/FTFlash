@@ -56,14 +56,16 @@ partial class ProgForm
         btnWrite.TabIndex = 1;
         btnWrite.Text = "Write All Memory";
         btnWrite.UseVisualStyleBackColor = true;
+        btnWrite.Click += btnWrite_Click;
         // 
         // numericUpDown1
         // 
         numericUpDown1.Location = new Point(88, 30);
+        numericUpDown1.Maximum = new decimal(new int[] { 9999, 0, 0, 0 });
         numericUpDown1.Name = "numericUpDown1";
         numericUpDown1.Size = new Size(55, 23);
         numericUpDown1.TabIndex = 2;
-        numericUpDown1.Value = new decimal(new int[] { 8, 0, 0, 0 });
+        numericUpDown1.Value = new decimal(new int[] { 32, 0, 0, 0 });
         numericUpDown1.ValueChanged += numericUpDown1_ValueChanged;
         // 
         // label1
@@ -73,7 +75,7 @@ partial class ProgForm
         label1.Name = "label1";
         label1.Size = new Size(59, 15);
         label1.TabIndex = 3;
-        label1.Text = "Size (MB):";
+        label1.Text = "Size (Mb):";
         // 
         // lblBytes
         // 
