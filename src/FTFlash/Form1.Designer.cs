@@ -34,6 +34,15 @@ partial class Form1
         lblID1 = new Label();
         lblID2 = new Label();
         lblID3 = new Label();
+        btnWritePage = new Button();
+        lblWrite = new Label();
+        btnReadPage = new Button();
+        nudWritePage = new NumericUpDown();
+        nudReadPage = new NumericUpDown();
+        richTextBox1 = new RichTextBox();
+        btnErase = new Button();
+        ((System.ComponentModel.ISupportInitialize)nudWritePage).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)nudReadPage).BeginInit();
         SuspendLayout();
         // 
         // btnConnect
@@ -92,11 +101,80 @@ partial class Form1
         lblID3.TabIndex = 5;
         lblID3.Text = "empty";
         // 
+        // btnWritePage
+        // 
+        btnWritePage.Location = new Point(12, 105);
+        btnWritePage.Name = "btnWritePage";
+        btnWritePage.Size = new Size(173, 41);
+        btnWritePage.TabIndex = 6;
+        btnWritePage.Text = "Write Page";
+        btnWritePage.UseVisualStyleBackColor = true;
+        btnWritePage.Click += btnWritePage_Click;
+        // 
+        // lblWrite
+        // 
+        lblWrite.AutoSize = true;
+        lblWrite.Location = new Point(253, 118);
+        lblWrite.Name = "lblWrite";
+        lblWrite.Size = new Size(41, 15);
+        lblWrite.TabIndex = 7;
+        lblWrite.Text = "empty";
+        // 
+        // btnReadPage
+        // 
+        btnReadPage.Location = new Point(12, 152);
+        btnReadPage.Name = "btnReadPage";
+        btnReadPage.Size = new Size(173, 41);
+        btnReadPage.TabIndex = 8;
+        btnReadPage.Text = "Read Page";
+        btnReadPage.UseVisualStyleBackColor = true;
+        btnReadPage.Click += btnReadPage_Click;
+        // 
+        // nudWritePage
+        // 
+        nudWritePage.Location = new Point(191, 116);
+        nudWritePage.Name = "nudWritePage";
+        nudWritePage.Size = new Size(56, 23);
+        nudWritePage.TabIndex = 9;
+        // 
+        // nudReadPage
+        // 
+        nudReadPage.Location = new Point(191, 163);
+        nudReadPage.Name = "nudReadPage";
+        nudReadPage.Size = new Size(56, 23);
+        nudReadPage.TabIndex = 10;
+        // 
+        // richTextBox1
+        // 
+        richTextBox1.Font = new Font("Consolas", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
+        richTextBox1.Location = new Point(253, 162);
+        richTextBox1.Name = "richTextBox1";
+        richTextBox1.Size = new Size(519, 276);
+        richTextBox1.TabIndex = 11;
+        richTextBox1.Text = "empty";
+        // 
+        // btnErase
+        // 
+        btnErase.Location = new Point(12, 199);
+        btnErase.Name = "btnErase";
+        btnErase.Size = new Size(173, 41);
+        btnErase.TabIndex = 12;
+        btnErase.Text = "Erase Chip";
+        btnErase.UseVisualStyleBackColor = true;
+        btnErase.Click += btnErase_Click;
+        // 
         // Form1
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(800, 450);
+        Controls.Add(btnErase);
+        Controls.Add(richTextBox1);
+        Controls.Add(nudReadPage);
+        Controls.Add(nudWritePage);
+        Controls.Add(btnReadPage);
+        Controls.Add(lblWrite);
+        Controls.Add(btnWritePage);
         Controls.Add(lblID3);
         Controls.Add(lblID2);
         Controls.Add(lblID1);
@@ -106,6 +184,8 @@ partial class Form1
         Name = "Form1";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "FTFlash";
+        ((System.ComponentModel.ISupportInitialize)nudWritePage).EndInit();
+        ((System.ComponentModel.ISupportInitialize)nudReadPage).EndInit();
         ResumeLayout(false);
         PerformLayout();
     }
@@ -118,4 +198,11 @@ partial class Form1
     private Label lblID1;
     private Label lblID2;
     private Label lblID3;
+    private Button btnWritePage;
+    private Label lblWrite;
+    private Button btnReadPage;
+    private NumericUpDown nudWritePage;
+    private NumericUpDown nudReadPage;
+    private RichTextBox richTextBox1;
+    private Button btnErase;
 }

@@ -1,3 +1,5 @@
+using System.Configuration;
+
 namespace FTFlash;
 
 public partial class Form1 : Form
@@ -57,6 +59,9 @@ public partial class Form1 : Form
             return;
 
         SpiComm.CsLow();
+        SpiComm.CsHigh();
+
+        SpiComm.CsLow();
         foreach (byte b in new byte[] { 0x90, 0, 0, 0 })
             SpiComm.Write(b);
         byte[] ids1 = SpiComm.ReadWrite(new byte[] { 0, 0 });
@@ -72,5 +77,56 @@ public partial class Form1 : Form
         SpiComm.CsHigh();
 
         lblID3.Text = "Device ID: " + string.Join("", ids2.Select(x => $"{x:X2}")).ToString();
+    }
+
+    private void btnWritePage_Click(object sender, EventArgs e)
+    {
+        if (SpiComm is null)
+            return;
+
+        byte firstByte = (byte)Random.Shared.Next(256);
+        lblWrite.Text = $"First byte: {firstByte}";
+
+        byte[] bytes = Enumerable.Range(0, 256).Select(x => (byte)(firstByte + x)).ToArray();
+
+        SpiComm.CsLow();
+        SpiComm.Write(6);
+        SpiComm.CsHigh();
+
+        SpiComm.CsLow();
+        foreach (byte b in new byte[] { 2, 0, 0, 0 })
+            SpiComm.Write(b);
+        foreach (byte b in bytes)
+            SpiComm.Write(b);
+        SpiComm.CsHigh();
+    }
+
+    private void btnReadPage_Click(object sender, EventArgs e)
+    {
+        if (SpiComm is null)
+            return;
+
+        SpiComm.CsLow();
+        foreach (byte b in new byte[] { 3, 0, 0, 0 })
+            SpiComm.Write(b);
+        System.Threading.Thread.Sleep(1);
+        byte[] bytes = SpiComm.ReadBytes(256);
+        SpiComm.CsHigh();
+
+        richTextBox1.Text = string.Join(", ", bytes.Select(x => $"{x}")).ToString();
+    }
+
+    private void btnErase_Click(object sender, EventArgs e)
+    {
+        if (SpiComm is null)
+            return;
+
+        SpiComm.CsLow();
+        SpiComm.Write(6);
+        SpiComm.CsHigh();
+
+        SpiComm.CsLow();
+        SpiComm.Write(0xC7);
+        SpiComm.CsHigh();
     }
 }
