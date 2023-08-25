@@ -59,25 +59,28 @@ public partial class Form1 : Form
             return;
 
         WaitForNotBusy();
-
         SpiComm.CsLow();
         foreach (byte b in new byte[] { 0x90, 0, 0, 0 })
             SpiComm.Write(b);
         byte[] ids1 = SpiComm.ReadWrite(new byte[] { 0, 0 });
         SpiComm.CsHigh();
-
         lblID1.Text = $"Manufacturer ID: 0x{ids1[0]:X}";
         lblID2.Text = $"Device ID: 0x{ids1[1]:X}";
 
         WaitForNotBusy();
-
         SpiComm.CsLow();
         foreach (byte b in new byte[] { 0x4B, 0, 0, 0, 0 })
             SpiComm.Write(b);
         byte[] ids2 = SpiComm.ReadBytes(8);
         SpiComm.CsHigh();
-
         lblID3.Text = "Device ID: " + string.Join("", ids2.Select(x => $"{x:X2}")).ToString();
+
+        WaitForNotBusy();
+        SpiComm.CsLow();
+        SpiComm.Write(0x9F);
+        byte[] ids3 = SpiComm.ReadBytes(3);
+        SpiComm.CsHigh();
+        lblID4.Text = "JEDEC ID: " + string.Join(", ", ids3.Select(x => $"0x{x:X2}")).ToString();
     }
 
     private void btnErase_Click(object sender, EventArgs e)
@@ -118,7 +121,7 @@ public partial class Form1 : Form
 
         WaitForNotBusy();
 
-        int address = (int)nudWritePage.Value * 256;
+        int address = (int)nudPage.Value * 256;
         byte pageH = (byte)(address >> 8);
         byte pageL = (byte)(address >> 0);
 
@@ -139,7 +142,7 @@ public partial class Form1 : Form
 
         WaitForNotBusy();
 
-        int address = (int)nudReadPage.Value * 256;
+        int address = (int)nudPage.Value * 256;
         byte pageH = (byte)(address >> 8);
         byte pageL = (byte)(address >> 0);
 

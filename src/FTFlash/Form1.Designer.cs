@@ -37,12 +37,12 @@ partial class Form1
         btnWritePage = new Button();
         lblWrite = new Label();
         btnReadPage = new Button();
-        nudWritePage = new NumericUpDown();
-        nudReadPage = new NumericUpDown();
+        nudPage = new NumericUpDown();
         richTextBox1 = new RichTextBox();
         btnErase = new Button();
-        ((System.ComponentModel.ISupportInitialize)nudWritePage).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)nudReadPage).BeginInit();
+        label1 = new Label();
+        lblID4 = new Label();
+        ((System.ComponentModel.ISupportInitialize)nudPage).BeginInit();
         SuspendLayout();
         // 
         // btnConnect
@@ -57,7 +57,7 @@ partial class Form1
         // 
         // btnReadIDs
         // 
-        btnReadIDs.Location = new Point(12, 58);
+        btnReadIDs.Location = new Point(191, 12);
         btnReadIDs.Name = "btnReadIDs";
         btnReadIDs.Size = new Size(173, 41);
         btnReadIDs.TabIndex = 1;
@@ -68,7 +68,7 @@ partial class Form1
         // lblConnection
         // 
         lblConnection.AutoSize = true;
-        lblConnection.Location = new Point(191, 25);
+        lblConnection.Location = new Point(12, 55);
         lblConnection.Name = "lblConnection";
         lblConnection.Size = new Size(84, 15);
         lblConnection.TabIndex = 2;
@@ -77,7 +77,7 @@ partial class Form1
         // lblID1
         // 
         lblID1.AutoSize = true;
-        lblID1.Location = new Point(191, 54);
+        lblID1.Location = new Point(370, 12);
         lblID1.Name = "lblID1";
         lblID1.Size = new Size(41, 15);
         lblID1.TabIndex = 3;
@@ -86,7 +86,7 @@ partial class Form1
         // lblID2
         // 
         lblID2.AutoSize = true;
-        lblID2.Location = new Point(191, 69);
+        lblID2.Location = new Point(370, 38);
         lblID2.Name = "lblID2";
         lblID2.Size = new Size(41, 15);
         lblID2.TabIndex = 4;
@@ -95,7 +95,7 @@ partial class Form1
         // lblID3
         // 
         lblID3.AutoSize = true;
-        lblID3.Location = new Point(191, 84);
+        lblID3.Location = new Point(524, 12);
         lblID3.Name = "lblID3";
         lblID3.Size = new Size(41, 15);
         lblID3.TabIndex = 5;
@@ -103,7 +103,7 @@ partial class Form1
         // 
         // btnWritePage
         // 
-        btnWritePage.Location = new Point(12, 105);
+        btnWritePage.Location = new Point(12, 173);
         btnWritePage.Name = "btnWritePage";
         btnWritePage.Size = new Size(173, 41);
         btnWritePage.TabIndex = 6;
@@ -114,7 +114,7 @@ partial class Form1
         // lblWrite
         // 
         lblWrite.AutoSize = true;
-        lblWrite.Location = new Point(253, 118);
+        lblWrite.Location = new Point(117, 99);
         lblWrite.Name = "lblWrite";
         lblWrite.Size = new Size(41, 15);
         lblWrite.TabIndex = 7;
@@ -122,7 +122,7 @@ partial class Form1
         // 
         // btnReadPage
         // 
-        btnReadPage.Location = new Point(12, 152);
+        btnReadPage.Location = new Point(12, 126);
         btnReadPage.Name = "btnReadPage";
         btnReadPage.Size = new Size(173, 41);
         btnReadPage.TabIndex = 8;
@@ -130,34 +130,26 @@ partial class Form1
         btnReadPage.UseVisualStyleBackColor = true;
         btnReadPage.Click += btnReadPage_Click;
         // 
-        // nudWritePage
+        // nudPage
         // 
-        nudWritePage.Location = new Point(191, 116);
-        nudWritePage.Maximum = new decimal(new int[] { 999999, 0, 0, 0 });
-        nudWritePage.Name = "nudWritePage";
-        nudWritePage.Size = new Size(56, 23);
-        nudWritePage.TabIndex = 9;
-        // 
-        // nudReadPage
-        // 
-        nudReadPage.Location = new Point(191, 163);
-        nudReadPage.Maximum = new decimal(new int[] { 999999, 0, 0, 0 });
-        nudReadPage.Name = "nudReadPage";
-        nudReadPage.Size = new Size(56, 23);
-        nudReadPage.TabIndex = 10;
+        nudPage.Location = new Point(55, 97);
+        nudPage.Maximum = new decimal(new int[] { 999999, 0, 0, 0 });
+        nudPage.Name = "nudPage";
+        nudPage.Size = new Size(56, 23);
+        nudPage.TabIndex = 9;
         // 
         // richTextBox1
         // 
         richTextBox1.Font = new Font("Consolas", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
-        richTextBox1.Location = new Point(253, 162);
+        richTextBox1.Location = new Point(191, 98);
         richTextBox1.Name = "richTextBox1";
-        richTextBox1.Size = new Size(519, 276);
+        richTextBox1.Size = new Size(581, 340);
         richTextBox1.TabIndex = 11;
         richTextBox1.Text = "empty";
         // 
         // btnErase
         // 
-        btnErase.Location = new Point(12, 199);
+        btnErase.Location = new Point(12, 220);
         btnErase.Name = "btnErase";
         btnErase.Size = new Size(173, 41);
         btnErase.TabIndex = 12;
@@ -165,15 +157,34 @@ partial class Form1
         btnErase.UseVisualStyleBackColor = true;
         btnErase.Click += btnErase_Click;
         // 
+        // label1
+        // 
+        label1.AutoSize = true;
+        label1.Location = new Point(13, 99);
+        label1.Name = "label1";
+        label1.Size = new Size(36, 15);
+        label1.TabIndex = 13;
+        label1.Text = "Page:";
+        // 
+        // lblID4
+        // 
+        lblID4.AutoSize = true;
+        lblID4.Location = new Point(524, 38);
+        lblID4.Name = "lblID4";
+        lblID4.Size = new Size(41, 15);
+        lblID4.TabIndex = 14;
+        lblID4.Text = "empty";
+        // 
         // Form1
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(800, 450);
+        Controls.Add(lblID4);
+        Controls.Add(label1);
         Controls.Add(btnErase);
         Controls.Add(richTextBox1);
-        Controls.Add(nudReadPage);
-        Controls.Add(nudWritePage);
+        Controls.Add(nudPage);
         Controls.Add(btnReadPage);
         Controls.Add(lblWrite);
         Controls.Add(btnWritePage);
@@ -186,8 +197,7 @@ partial class Form1
         Name = "Form1";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "FTFlash";
-        ((System.ComponentModel.ISupportInitialize)nudWritePage).EndInit();
-        ((System.ComponentModel.ISupportInitialize)nudReadPage).EndInit();
+        ((System.ComponentModel.ISupportInitialize)nudPage).EndInit();
         ResumeLayout(false);
         PerformLayout();
     }
@@ -203,8 +213,9 @@ partial class Form1
     private Button btnWritePage;
     private Label lblWrite;
     private Button btnReadPage;
-    private NumericUpDown nudWritePage;
-    private NumericUpDown nudReadPage;
+    private NumericUpDown nudPage;
     private RichTextBox richTextBox1;
     private Button btnErase;
+    private Label label1;
+    private Label lblID4;
 }
