@@ -133,6 +133,7 @@ partial class Form1
         // nudWritePage
         // 
         nudWritePage.Location = new Point(191, 116);
+        nudWritePage.Maximum = new decimal(new int[] { 999999, 0, 0, 0 });
         nudWritePage.Name = "nudWritePage";
         nudWritePage.Size = new Size(56, 23);
         nudWritePage.TabIndex = 9;
@@ -140,6 +141,7 @@ partial class Form1
         // nudReadPage
         // 
         nudReadPage.Location = new Point(191, 163);
+        nudReadPage.Maximum = new decimal(new int[] { 999999, 0, 0, 0 });
         nudReadPage.Name = "nudReadPage";
         nudReadPage.Size = new Size(56, 23);
         nudReadPage.TabIndex = 10;

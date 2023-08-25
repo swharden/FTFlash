@@ -43,7 +43,7 @@ public partial class Form1 : Form
             if (device.Type == "232H")
             {
                 lblConnection.Text = $"FT232H ({device.ID}) connecting...";
-                SpiComm = new(device, spiMode: 0, slowDownFactor: 500);
+                SpiComm = new(device, spiMode: 0, slowDownFactor: 50);
                 lblConnection.Text = $"FT232H ({device.ID}) connected";
                 btnConnect.Text = "Disconnect";
                 return;
@@ -58,8 +58,7 @@ public partial class Form1 : Form
         if (SpiComm is null)
             return;
 
-        SpiComm.CsLow();
-        SpiComm.CsHigh();
+        WaitForNotBusy();
 
         SpiComm.CsLow();
         foreach (byte b in new byte[] { 0x90, 0, 0, 0 })
@@ -70,6 +69,8 @@ public partial class Form1 : Form
         lblID1.Text = $"Manufacturer ID: 0x{ids1[0]:X}";
         lblID2.Text = $"Device ID: 0x{ids1[1]:X}";
 
+        WaitForNotBusy();
+
         SpiComm.CsLow();
         foreach (byte b in new byte[] { 0x4B, 0, 0, 0, 0 })
             SpiComm.Write(b);
@@ -79,26 +80,56 @@ public partial class Form1 : Form
         lblID3.Text = "Device ID: " + string.Join("", ids2.Select(x => $"{x:X2}")).ToString();
     }
 
-    private void btnWritePage_Click(object sender, EventArgs e)
+    private void btnErase_Click(object sender, EventArgs e)
     {
         if (SpiComm is null)
             return;
 
-        byte firstByte = (byte)Random.Shared.Next(256);
-        lblWrite.Text = $"First byte: {firstByte}";
-
-        byte[] bytes = Enumerable.Range(0, 256).Select(x => (byte)(firstByte + x)).ToArray();
+        WaitForNotBusy();
 
         SpiComm.CsLow();
         SpiComm.Write(6);
         SpiComm.CsHigh();
 
+        WaitForNotBusy();
+
         SpiComm.CsLow();
-        foreach (byte b in new byte[] { 2, 0, 0, 0 })
+        SpiComm.Write(0xC7);
+        SpiComm.CsHigh();
+
+        WaitForNotBusy();
+    }
+
+    private void btnWritePage_Click(object sender, EventArgs e)
+    {
+        if (SpiComm is null)
+            return;
+
+        //byte firstByte = (byte)Random.Shared.Next(256);
+
+        byte[] bytes = Enumerable.Range(Random.Shared.Next(100), 256).Select(x => (byte)x).ToArray();
+        lblWrite.Text = $"First byte: {bytes.First()}";
+
+        WaitForNotBusy();
+
+        SpiComm.CsLow();
+        SpiComm.Write(6);
+        SpiComm.CsHigh();
+
+        WaitForNotBusy();
+
+        int address = (int)nudWritePage.Value * 256;
+        byte pageH = (byte)(address >> 8);
+        byte pageL = (byte)(address >> 0);
+
+        SpiComm.CsLow();
+        foreach (byte b in new byte[] { 2, pageH, pageL, 0 })
             SpiComm.Write(b);
         foreach (byte b in bytes)
             SpiComm.Write(b);
         SpiComm.CsHigh();
+
+        WaitForNotBusy();
     }
 
     private void btnReadPage_Click(object sender, EventArgs e)
@@ -106,27 +137,40 @@ public partial class Form1 : Form
         if (SpiComm is null)
             return;
 
+        WaitForNotBusy();
+
+        int address = (int)nudReadPage.Value * 256;
+        byte pageH = (byte)(address >> 8);
+        byte pageL = (byte)(address >> 0);
+
         SpiComm.CsLow();
-        foreach (byte b in new byte[] { 3, 0, 0, 0 })
+
+        foreach (byte b in new byte[] { 3, pageH, pageL, 0 })
             SpiComm.Write(b);
-        System.Threading.Thread.Sleep(1);
+
         byte[] bytes = SpiComm.ReadBytes(256);
         SpiComm.CsHigh();
+
+        WaitForNotBusy();
 
         richTextBox1.Text = string.Join(", ", bytes.Select(x => $"{x}")).ToString();
     }
 
-    private void btnErase_Click(object sender, EventArgs e)
+    private void WaitForNotBusy()
     {
         if (SpiComm is null)
             return;
 
+        Text = "Waiting...";
         SpiComm.CsLow();
-        SpiComm.Write(6);
+        byte statusByte = 0b00000001;
+        while ((statusByte & 1) != 0)
+        {
+            SpiComm.Write(0x05);
+            statusByte = SpiComm.ReadWrite(new byte[] { 0 }).Single();
+        }
         SpiComm.CsHigh();
 
-        SpiComm.CsLow();
-        SpiComm.Write(0xC7);
-        SpiComm.CsHigh();
+        Text = "Ready";
     }
 }
