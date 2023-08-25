@@ -83,9 +83,8 @@ public partial class ProgForm : Form
         if (bytes.Length > 256)
             throw new InvalidOperationException();
 
-        int address = page * 256;
-        byte pageH = (byte)(address >> 8);
-        byte pageL = (byte)(address >> 0);
+        byte pageH = (byte)(page >> 8);
+        byte pageL = (byte)(page >> 0);
 
         WaitForNotBusy(com);
 
@@ -105,9 +104,8 @@ public partial class ProgForm : Form
 
     private byte[] ReadPage(FtdiSharp.Protocols.SPI com, int page)
     {
-        int address = page * 256;
-        byte pageH = (byte)(address >> 8);
-        byte pageL = (byte)(address >> 0);
+        byte pageH = (byte)(page >> 8);
+        byte pageL = (byte)(page >> 0);
 
         WaitForNotBusy(com);
         com.CsLow();
