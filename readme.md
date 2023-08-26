@@ -18,6 +18,10 @@ The photo of my breadboard shows a 0.1 µF decoupling capacitor to ground placed
 
 ![](dev/screenshot2.png)
 
+## Download FTFlash
+
+* FTFlash.zip can be downloaded from the [Releases page](https://github.com/swharden/FTFlash/releases/)
+
 ## Resources
 
 * [FtdiSharp](https://github.com/swharden/FtdiSharp)
