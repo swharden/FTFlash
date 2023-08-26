@@ -6,6 +6,10 @@
 
 ![](dev/wiring/wiring.png)
 
+![](dev/wiring/breadboard.jpg)
+
+The photo of my breadboard shows a 0.1 µF decoupling capacitor to ground placed the the 3.3V line next to the regulator. It's probably not mandatory, but is a good idea to include on the output rail of linear voltage regulators to smooth out high frequency noise on the the supply line.
+
 ### Device and Memory Inspection
 
 ![](dev/screenshot.png)
