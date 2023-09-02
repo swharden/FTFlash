@@ -1,6 +1,4 @@
-﻿using System.Security;
-
-namespace FTFlash;
+﻿namespace FTFlash;
 
 public partial class ProgForm : Form
 {
@@ -10,6 +8,7 @@ public partial class ProgForm : Form
     {
         InitializeComponent();
         UpdateByteCount();
+        this.Select();
     }
 
     private void numericUpDown1_ValueChanged(object sender, EventArgs e) => UpdateByteCount();
@@ -25,23 +24,44 @@ public partial class ProgForm : Form
         Application.DoEvents();
     }
 
-    private FtdiSharp.Protocols.SPI? GetCom()
+    private SpiFlashManager? GetFlashMan()
     {
-        var devices = FtdiSharp.FtdiDevices.Scan();
-        foreach (var device in devices)
+        System.Diagnostics.Debug.WriteLine("Scanning for FTDI devices...");
+        List<FtdiSharp.FtdiDevice> ft232s = new();
+        foreach (FtdiSharp.FtdiDevice device in FtdiSharp.FtdiDevices.Scan())
         {
             System.Diagnostics.Debug.WriteLine($"Found: {device}");
             if (device.Type == "232H")
             {
-                Progress($"FT232H ({device.ID}) connecting...");
-                FtdiSharp.Protocols.SPI spiComm = new(device, spiMode: 0);
-                Progress($"FT232H ({device.ID}) connected");
-                return spiComm;
+                ft232s.Add(device);
             }
         }
 
-        Progress($"No FT232H found...");
-        return null;
+        if (!ft232s.Any())
+        {
+            Progress($"No FT232H found...");
+            return null;
+        }
+
+        FtdiSharp.FtdiDevice firstDevice = ft232s.First();
+        Progress($"FT232H ({firstDevice.ID}) connecting...");
+        SpiFlashManager flashMan = new(firstDevice);
+
+        if (flashMan.ConnectionIsActive())
+        {
+            Progress($"FT232H ({firstDevice.ID}) connected");
+            return flashMan;
+        }
+        else
+        {
+            Progress($"SPI connection error");
+            flashMan.Disconnect();
+            MessageBox.Show("A FT232H was found but the SPI chip did not respond to it. " +
+                "Ensure your wiring and power configuration is correct.", "ERROR",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            return null;
+        }
     }
 
     private void LaunchAndSelect(string filePath)
@@ -51,75 +71,9 @@ public partial class ProgForm : Form
         System.Diagnostics.Process.Start("explorer.exe", $"/select, \"{filePath}\"");
     }
 
-    private void WaitForNotBusy(FtdiSharp.Protocols.SPI com)
-    {
-        com.CsLow();
-        byte statusByte = 0b00000001;
-        while ((statusByte & 1) != 0)
-        {
-            com.Write(0x05);
-            statusByte = com.ReadWrite(new byte[] { 0 }).Single();
-        }
-        com.CsHigh();
-    }
-
-    private void Erase(FtdiSharp.Protocols.SPI com)
-    {
-        WaitForNotBusy(com);
-
-        com.CsLow();
-        com.Write(6);
-        com.CsHigh();
-
-        com.CsLow();
-        com.Write(0xC7);
-        com.CsHigh();
-
-        WaitForNotBusy(com);
-    }
-
-    private byte[] WritePage(FtdiSharp.Protocols.SPI com, int page, byte[] bytes)
-    {
-        if (bytes.Length > 256)
-            throw new InvalidOperationException();
-
-        byte pageH = (byte)(page >> 8);
-        byte pageL = (byte)(page >> 0);
-
-        WaitForNotBusy(com);
-
-        com.CsLow();
-        com.Write(6);
-        com.CsHigh();
-
-        com.CsLow();
-        foreach (byte b in new byte[] { 2, pageH, pageL, 0 })
-            com.Write(b);
-        foreach (byte b in bytes)
-            com.Write(b);
-        com.CsHigh();
-
-        return bytes;
-    }
-
-    private byte[] ReadPage(FtdiSharp.Protocols.SPI com, int page)
-    {
-        byte pageH = (byte)(page >> 8);
-        byte pageL = (byte)(page >> 0);
-
-        WaitForNotBusy(com);
-        com.CsLow();
-        foreach (byte b in new byte[] { 3, pageH, pageL, 0 })
-            com.Write(b);
-        byte[] bytes = com.ReadBytes(256);
-        com.CsHigh();
-
-        return bytes;
-    }
-
     private void btnRead_Click(object sender, EventArgs e)
     {
-        FtdiSharp.Protocols.SPI? com = GetCom();
+        SpiFlashManager? com = GetFlashMan();
         if (com is null)
             return;
 
@@ -129,7 +83,8 @@ public partial class ProgForm : Form
         {
             double percent = (double)i / PageCount * 100;
             Progress($"Reading page {i} of {PageCount} ({percent:0.00}%).", percent);
-            byte[] pageBytes = ReadPage(com, i);
+
+            byte[] pageBytes = com.ReadPage(i);
             Array.Copy(pageBytes, 0, bytes, i * 256, 256);
         }
 
@@ -137,7 +92,7 @@ public partial class ProgForm : Form
         File.WriteAllBytes(filename, bytes);
         LaunchAndSelect(filename);
 
-        com.FtdiDevice.Close();
+        com.Disconnect();
         Progress($"Disconnected.");
     }
 
@@ -148,12 +103,12 @@ public partial class ProgForm : Form
             return;
         byte[] fileBytes = File.ReadAllBytes(diag.FileName);
 
-        FtdiSharp.Protocols.SPI? com = GetCom();
+        SpiFlashManager? com = GetFlashMan();
         if (com is null)
             return;
 
         Progress($"Erasing chip...");
-        Erase(com);
+        com.Erase();
 
         int pagesToWrite = fileBytes.Length / 256;
         for (int i = 0; i < pagesToWrite; i++)
@@ -162,10 +117,10 @@ public partial class ProgForm : Form
             Progress($"Writing page {i} of {pagesToWrite} ({percent:0.00}%).", percent);
             byte[] pageBytes = new byte[256];
             Array.Copy(fileBytes, i * 256, pageBytes, 0, 256);
-            WritePage(com, i, pageBytes);
+            com.WritePage(i, pageBytes);
         }
 
-        com.FtdiDevice.Close();
+        com.Disconnect();
         Progress($"Disconnected.");
     }
 }

@@ -6,12 +6,19 @@ public partial class MenuForm : Form
     {
         InitializeComponent();
         Text = ProgramVersion.FullNameAndVersion;
-        button3.Select();
+        this.Select();
     }
 
-    private void button1_Click(object sender, EventArgs e) => new TestForm().ShowDialog();
+    private void button1_Click(object sender, EventArgs e) => HideAndShowDialog(new TestForm());
 
-    private void button2_Click(object sender, EventArgs e) => new ProgForm().ShowDialog();
+    private void button2_Click(object sender, EventArgs e) => HideAndShowDialog(new ProgForm());
 
-    private void button3_Click(object sender, EventArgs e) => new WiringForm().ShowDialog();
+    private void button3_Click(object sender, EventArgs e) => HideAndShowDialog(new WiringForm());
+
+    private void HideAndShowDialog(Form frm)
+    {
+        Hide();
+        frm.ShowDialog();
+        Show();
+    }
 }

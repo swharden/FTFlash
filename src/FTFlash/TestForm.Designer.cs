@@ -175,7 +175,7 @@ partial class TestForm
         lblID4.TabIndex = 14;
         lblID4.Text = "empty";
         // 
-        // Form1
+        // TestForm
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
@@ -194,9 +194,9 @@ partial class TestForm
         Controls.Add(lblConnection);
         Controls.Add(btnReadIDs);
         Controls.Add(btnConnect);
-        Name = "Form1";
+        Name = "TestForm";
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "FTFlash";
+        Text = "FTFlash Chip Tester";
         ((System.ComponentModel.ISupportInitialize)nudPage).EndInit();
         ResumeLayout(false);
         PerformLayout();

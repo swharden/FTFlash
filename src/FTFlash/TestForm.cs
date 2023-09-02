@@ -10,6 +10,7 @@ public partial class TestForm : Form
         Disconnect();
         btnConnect_Click(this, EventArgs.Empty);
         FormClosing += (s, e) => Disconnect();
+        this.Select();
     }
 
     private void btnConnect_Click(object sender, EventArgs e)
@@ -97,8 +98,7 @@ public partial class TestForm : Form
     {
         byte[] bytes = Enumerable.Range(Random.Shared.Next(100), 256).Select(x => (byte)x).ToArray();
         lblWrite.Text = $"First byte: {bytes.First()}";
-        int address = (int)nudPage.Value * 256;
-        FlashMan?.WritePage(address, bytes);
+        FlashMan?.WritePage((int)nudPage.Value, bytes);
     }
 
     private void btnReadPage_Click(object sender, EventArgs e)

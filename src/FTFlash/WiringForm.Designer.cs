@@ -108,7 +108,7 @@ partial class WiringForm
         Controls.Add(label1);
         Controls.Add(button1);
         Controls.Add(richTextBox1);
-        FormBorderStyle = FormBorderStyle.FixedDialog;
+        FormBorderStyle = FormBorderStyle.FixedSingle;
         Name = "WiringForm";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "FTFlash Wiring Diagram";

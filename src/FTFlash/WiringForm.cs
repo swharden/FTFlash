@@ -7,7 +7,7 @@ public partial class WiringForm : Form
     public WiringForm()
     {
         InitializeComponent();
-        button2.Select();
+        this.Select();
     }
 
     private void button1_Click(object sender, EventArgs e)

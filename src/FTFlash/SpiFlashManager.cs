@@ -1,5 +1,4 @@
 ﻿using FtdiSharp;
-using System.Threading.Tasks;
 
 namespace FTFlash;
 
@@ -8,11 +7,11 @@ public class SpiFlashManager
     public readonly FtdiSharp.Protocols.SPI SpiComm;
     public readonly FtdiDevice Device;
 
-    public SpiFlashManager(FtdiDevice device)
+    public SpiFlashManager(FtdiDevice device, int slowDownFactor = 50)
     {
         Device = device;
         System.Diagnostics.Debug.WriteLine($"FT232H ({device.ID}) connecting...");
-        SpiComm = new(device, spiMode: 0, slowDownFactor: 50);
+        SpiComm = new(device, spiMode: 0, slowDownFactor: slowDownFactor);
         System.Diagnostics.Debug.WriteLine($"FT232H ({device.ID}) connected");
     }
 
@@ -103,9 +102,9 @@ public class SpiFlashManager
         WaitForNotBusy();
     }
 
-    public void WritePage(int address, byte[] bytes)
+    public void WritePage(int page, byte[] bytes)
     {
-        System.Diagnostics.Debug.WriteLine($"Writing {bytes.Length} bytes to address {address}...");
+        System.Diagnostics.Debug.WriteLine($"Writing {bytes.Length} bytes to address {page}...");
 
         WaitForNotBusy();
 
@@ -115,11 +114,12 @@ public class SpiFlashManager
 
         WaitForNotBusy();
 
-        byte pageH = (byte)(address >> 8);
-        byte pageL = (byte)(address >> 0);
+        byte address1 = (byte)(page >> 8);
+        byte address2 = (byte)(page >> 0);
+        byte address3 = 0;
 
         SpiComm.CsLow();
-        foreach (byte b in new byte[] { 2, pageH, pageL, 0 })
+        foreach (byte b in new byte[] { 2, address1, address2, address3 })
             SpiComm.Write(b);
         foreach (byte b in bytes)
             SpiComm.Write(b);
@@ -128,18 +128,22 @@ public class SpiFlashManager
         WaitForNotBusy();
     }
 
-    public byte[] ReadPage(int address, int count = 256)
+    public byte[] ReadPage(int page, int count = 256)
     {
-        System.Diagnostics.Debug.WriteLine($"Reading {count} bytes to address {address}...");
+        if (count > 256)
+            throw new ArgumentException("A single read cannot exceed 256 bytes");
+
+        System.Diagnostics.Debug.WriteLine($"Reading {count} bytes to address {page}...");
 
         WaitForNotBusy();
 
-        byte pageH = (byte)(address >> 8);
-        byte pageL = (byte)(address >> 0);
+        byte address1 = (byte)(page >> 8);
+        byte address2 = (byte)(page >> 0);
+        byte address3 = 0;
 
         SpiComm.CsLow();
 
-        foreach (byte b in new byte[] { 3, pageH, pageL, 0 })
+        foreach (byte b in new byte[] { 3, address1, address2, address3 })
             SpiComm.Write(b);
 
         byte[] bytes = SpiComm.ReadBytes(256);

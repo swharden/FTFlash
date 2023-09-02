@@ -115,9 +115,10 @@ partial class ProgForm
         Controls.Add(numericUpDown1);
         Controls.Add(btnWrite);
         Controls.Add(btnRead);
+        FormBorderStyle = FormBorderStyle.FixedSingle;
         Name = "ProgForm";
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "ProgForm";
+        Text = "FTFlash Programmer";
         ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
         ResumeLayout(false);
         PerformLayout();
