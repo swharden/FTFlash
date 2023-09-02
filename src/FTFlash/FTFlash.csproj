@@ -1,15 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net7.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWindowsForms>true</UseWindowsForms>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Version>1.1</Version>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="FtdiSharp" Version="0.0.3-alpha" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="FtdiSharp" Version="0.0.3-alpha" />
+    </ItemGroup>
 
 </Project>
