@@ -2,7 +2,7 @@ namespace FTFlash;
 
 public partial class TestForm : Form
 {
-    FtdiSharp.Protocols.SPI? SpiComm = null;
+    SpiFlashManager? FlashMan = null;
 
     public TestForm()
     {
@@ -14,7 +14,7 @@ public partial class TestForm : Form
 
     private void btnConnect_Click(object sender, EventArgs e)
     {
-        if (SpiComm is null)
+        if (FlashMan is null)
         {
             ScanAndConnect();
         }
@@ -26,9 +26,8 @@ public partial class TestForm : Form
 
     void Disconnect()
     {
-        System.Diagnostics.Debug.WriteLine("Disconnecting...");
-        SpiComm?.Close();
-        SpiComm = null;
+        FlashMan?.Disconnect();
+        FlashMan = null;
         lblConnection.Text = "Disconnected";
         btnConnect.Text = "Scan for FT232H Devices";
     }
@@ -36,14 +35,13 @@ public partial class TestForm : Form
     void ScanAndConnect()
     {
         System.Diagnostics.Debug.WriteLine("Scanning for FTDI devices...");
-        var devices = FtdiSharp.FtdiDevices.Scan();
-        foreach (var device in devices)
+        foreach (FtdiSharp.FtdiDevice device in FtdiSharp.FtdiDevices.Scan())
         {
             System.Diagnostics.Debug.WriteLine($"Found: {device}");
             if (device.Type == "232H")
             {
                 lblConnection.Text = $"FT232H ({device.ID}) connecting...";
-                SpiComm = new(device, spiMode: 0, slowDownFactor: 50);
+                FlashMan = new(device);
                 lblConnection.Text = $"FT232H ({device.ID}) connected";
                 btnConnect.Text = "Disconnect";
                 return;
@@ -55,123 +53,36 @@ public partial class TestForm : Form
 
     private void btnReadIDs_Click(object sender, EventArgs e)
     {
-        if (SpiComm is null)
+        if (FlashMan is null)
             return;
 
-        WaitForNotBusy();
-        SpiComm.CsLow();
-        foreach (byte b in new byte[] { 0x90, 0, 0, 0 })
-            SpiComm.Write(b);
-        byte[] ids1 = SpiComm.ReadWrite(new byte[] { 0, 0 });
-        SpiComm.CsHigh();
-        lblID1.Text = $"Manufacturer ID: 0x{ids1[0]:X}";
-        lblID2.Text = $"Device ID: 0x{ids1[1]:X}";
-
-        WaitForNotBusy();
-        SpiComm.CsLow();
-        foreach (byte b in new byte[] { 0x4B, 0, 0, 0, 0 })
-            SpiComm.Write(b);
-        byte[] ids2 = SpiComm.ReadBytes(8);
-        SpiComm.CsHigh();
-        lblID3.Text = "Device ID: " + string.Join("", ids2.Select(x => $"{x:X2}")).ToString();
-
-        WaitForNotBusy();
-        SpiComm.CsLow();
-        SpiComm.Write(0x9F);
-        byte[] ids3 = SpiComm.ReadBytes(3);
-        SpiComm.CsHigh();
-        lblID4.Text = "JEDEC ID: " + string.Join(", ", ids3.Select(x => $"0x{x:X2}")).ToString();
+        ChipID ids = FlashMan.ReadIDs();
+        lblID1.Text = $"Manufacturer: 0x{ids.Manufacturer:X}";
+        lblID2.Text = $"Device: 0x{ids.Device:X}";
+        lblID3.Text = "Unique: " + string.Join("", ids.Unique.Select(x => $"{x:X2}")).ToString();
+        lblID4.Text = "JEDEC: " + string.Join(", ", ids.JEDEC.Select(x => $"0x{x:X2}")).ToString();
     }
 
     private void btnErase_Click(object sender, EventArgs e)
     {
-        if (SpiComm is null)
-            return;
-
-        WaitForNotBusy();
-
-        SpiComm.CsLow();
-        SpiComm.Write(6);
-        SpiComm.CsHigh();
-
-        WaitForNotBusy();
-
-        SpiComm.CsLow();
-        SpiComm.Write(0xC7);
-        SpiComm.CsHigh();
-
-        WaitForNotBusy();
+        FlashMan?.Erase();
     }
 
     private void btnWritePage_Click(object sender, EventArgs e)
     {
-        if (SpiComm is null)
-            return;
-
         byte[] bytes = Enumerable.Range(Random.Shared.Next(100), 256).Select(x => (byte)x).ToArray();
         lblWrite.Text = $"First byte: {bytes.First()}";
-
-        WaitForNotBusy();
-
-        SpiComm.CsLow();
-        SpiComm.Write(6);
-        SpiComm.CsHigh();
-
-        WaitForNotBusy();
-
         int address = (int)nudPage.Value * 256;
-        byte pageH = (byte)(address >> 8);
-        byte pageL = (byte)(address >> 0);
-
-        SpiComm.CsLow();
-        foreach (byte b in new byte[] { 2, pageH, pageL, 0 })
-            SpiComm.Write(b);
-        foreach (byte b in bytes)
-            SpiComm.Write(b);
-        SpiComm.CsHigh();
-
-        WaitForNotBusy();
+        FlashMan?.WritePage(address, bytes);
     }
 
     private void btnReadPage_Click(object sender, EventArgs e)
     {
-        if (SpiComm is null)
+        if (FlashMan is null)
             return;
-
-        WaitForNotBusy();
 
         int address = (int)nudPage.Value * 256;
-        byte pageH = (byte)(address >> 8);
-        byte pageL = (byte)(address >> 0);
-
-        SpiComm.CsLow();
-
-        foreach (byte b in new byte[] { 3, pageH, pageL, 0 })
-            SpiComm.Write(b);
-
-        byte[] bytes = SpiComm.ReadBytes(256);
-        SpiComm.CsHigh();
-
-        WaitForNotBusy();
-
+        byte[] bytes = FlashMan.ReadPage(address, 256);
         richTextBox1.Text = string.Join(", ", bytes.Select(x => $"{x}")).ToString();
-    }
-
-    private void WaitForNotBusy()
-    {
-        if (SpiComm is null)
-            return;
-
-        Text = "Waiting...";
-        SpiComm.CsLow();
-        byte statusByte = 0b00000001;
-        while ((statusByte & 1) != 0)
-        {
-            SpiComm.Write(0x05);
-            statusByte = SpiComm.ReadWrite(new byte[] { 0 }).Single();
-        }
-        SpiComm.CsHigh();
-
-        Text = "Ready";
     }
 }
