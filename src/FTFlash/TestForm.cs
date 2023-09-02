@@ -35,20 +35,45 @@ public partial class TestForm : Form
     void ScanAndConnect()
     {
         System.Diagnostics.Debug.WriteLine("Scanning for FTDI devices...");
+        List<FtdiSharp.FtdiDevice> ft232s = new();
         foreach (FtdiSharp.FtdiDevice device in FtdiSharp.FtdiDevices.Scan())
         {
             System.Diagnostics.Debug.WriteLine($"Found: {device}");
             if (device.Type == "232H")
             {
-                lblConnection.Text = $"FT232H ({device.ID}) connecting...";
-                FlashMan = new(device);
-                lblConnection.Text = $"FT232H ({device.ID}) connected";
-                btnConnect.Text = "Disconnect";
-                return;
+                ft232s.Add(device);
             }
         }
 
-        lblConnection.Text = $"No FT232H found...";
+        if (!ft232s.Any())
+        {
+            lblConnection.Text = $"No FT232H found...";
+            return;
+        }
+
+        Connect(ft232s.First());
+    }
+
+    public void Connect(FtdiSharp.FtdiDevice device)
+    {
+        lblConnection.Text = $"FT232H ({device.ID}) connecting...";
+        FlashMan = new(device);
+
+        if (FlashMan.ConnectionIsActive())
+        {
+            lblConnection.Text = $"FT232H ({device.ID}) connected";
+            btnConnect.Text = "Disconnect";
+        }
+        else
+        {
+            FlashMan.Disconnect();
+            FlashMan = null;
+            lblConnection.Text = $"SPI connection error";
+
+            MessageBox.Show("A FT232H was found but the SPI chip did not respond to it. " +
+                "Ensure your wiring and power configuration is correct.", "ERROR",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void btnReadIDs_Click(object sender, EventArgs e)

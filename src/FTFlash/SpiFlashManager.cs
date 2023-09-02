@@ -1,4 +1,5 @@
 ﻿using FtdiSharp;
+using System.Threading.Tasks;
 
 namespace FTFlash;
 
@@ -13,6 +14,23 @@ public class SpiFlashManager
         System.Diagnostics.Debug.WriteLine($"FT232H ({device.ID}) connecting...");
         SpiComm = new(device, spiMode: 0, slowDownFactor: 50);
         System.Diagnostics.Debug.WriteLine($"FT232H ({device.ID}) connected");
+    }
+
+    public bool ConnectionIsActive(double timeoutSeconds = 2)
+    {
+        Task task = Task.Run(() =>
+        {
+            try
+            {
+                WaitForNotBusy();
+            }
+            catch (FtdiSharp.FTD2XX.FT_EXCEPTION ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+            }
+        });
+
+        return task.Wait(TimeSpan.FromSeconds(timeoutSeconds));
     }
 
     public void Disconnect()
