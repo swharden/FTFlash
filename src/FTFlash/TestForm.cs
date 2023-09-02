@@ -1,5 +1,3 @@
-using System.Configuration;
-
 namespace FTFlash;
 
 public partial class TestForm : Form
@@ -11,6 +9,7 @@ public partial class TestForm : Form
         InitializeComponent();
         Disconnect();
         btnConnect_Click(this, EventArgs.Empty);
+        FormClosing += (s, e) => Disconnect();
     }
 
     private void btnConnect_Click(object sender, EventArgs e)
@@ -27,6 +26,7 @@ public partial class TestForm : Form
 
     void Disconnect()
     {
+        System.Diagnostics.Debug.WriteLine("Disconnecting...");
         SpiComm?.Close();
         SpiComm = null;
         lblConnection.Text = "Disconnected";
@@ -107,8 +107,6 @@ public partial class TestForm : Form
     {
         if (SpiComm is null)
             return;
-
-        //byte firstByte = (byte)Random.Shared.Next(256);
 
         byte[] bytes = Enumerable.Range(Random.Shared.Next(100), 256).Select(x => (byte)x).ToArray();
         lblWrite.Text = $"First byte: {bytes.First()}";
