@@ -110,7 +110,7 @@ public partial class ProgForm : Form
         Progress($"Erasing chip...");
         com.Erase();
 
-        int pagesToWrite = fileBytes.Length / 256;
+        int pagesToWrite = (int)Math.Ceiling((double)fileBytes.Length / 256);
         for (int i = 0; i < pagesToWrite; i++)
         {
             double percent = (double)i / pagesToWrite * 100;
