@@ -116,7 +116,9 @@ public partial class ProgForm : Form
             double percent = (double)i / pagesToWrite * 100;
             Progress($"Writing page {i} of {pagesToWrite} ({percent:0.00}%).", percent);
             byte[] pageBytes = new byte[256];
-            Array.Copy(fileBytes, i * 256, pageBytes, 0, 256);
+            int sourceIndex = i * 256;
+            int length = Math.Min(fileBytes.Length - sourceIndex, 256);
+            Array.Copy(fileBytes, sourceIndex, pageBytes, 0, length);
             com.WritePage(i, pageBytes);
         }
 
